@@ -2,11 +2,10 @@ from tkinter import *
 import tkinter
 import time
 import os
-import requests
-import shutil
 import ctypes
 from colorthief import ColorThief
 import webcolors
+from icrawler.builtin import GoogleImageCrawler
 
 
 
@@ -49,7 +48,7 @@ def searchbg(*args):
     new_window.title('Theme')
 
     def detectcolour():
-        dominant_color = ColorThief('bg.jpg').get_color(quality=1)
+        dominant_color = ColorThief('000001.jpg').get_color(quality=1)
         themecolour = webcolors.rgb_to_hex(dominant_color)
         timelabel.config(bg=themecolour)
         window.configure(background=themecolour)
@@ -59,24 +58,17 @@ def searchbg(*args):
     def setbg():
         url = textbox.get()
 
-        if os.path.exists("bg.jpg"):
-            os.remove("bg.jpg")
+        if os.path.exists("000001.jpg"):
+            os.remove("000001.jpg")
         else:
             print("The file does not exist")
 
-        file_name = "bg.jpg"
+        google_Crawler = GoogleImageCrawler(storage={'root_dir': directory})
+        google_Crawler.crawl(keyword=url, max_num=1)
 
-        res = requests.get(url, stream=True)
+        SPI_SETDESKWALLPAPER = 20
+        ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, directory + '/000001.jpg', 0)
 
-        if res.status_code == 200:
-            with open(file_name, 'wb') as f:
-                shutil.copyfileobj(res.raw, f)
-            print('Image sucessfully Downloaded: ', file_name)
-
-            SPI_SETDESKWALLPAPER = 20
-            ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, directory + '/bg.jpg', 0)
-        else:
-            print('Image Couldn\'t be retrieved')
         detectcolour()
         new_window.destroy()
 
@@ -84,7 +76,7 @@ def searchbg(*args):
 
     textbox = Entry(new_window,width=30)
     textbox.pack()
-    searchbutton = Button(new_window, text="Enter Image Link", padx=10, pady=5, command=setbg)
+    searchbutton = Button(new_window, text="Search Theme", padx=10, pady=5, command=setbg)
     searchbutton.pack()
 
 def button_hover(*args):
