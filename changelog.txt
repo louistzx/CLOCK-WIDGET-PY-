@@ -1,0 +1,4 @@
+update 1.1
+##ADDED
+-colour detection of background
+-setting of widget background to background colour
