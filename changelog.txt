@@ -6,3 +6,8 @@ update 1.1
 -hover interaction on clock
 ##Fixed
 -unable to switch theme back to back
+
+
+update 1.2
+##ADDED
+-keyword image search no need for image link
