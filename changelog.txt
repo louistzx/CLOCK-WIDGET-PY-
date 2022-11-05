@@ -2,3 +2,7 @@ update 1.1
 ##ADDED
 -colour detection of background
 -setting of widget background to background colour
+-compiled code into one running script
+-hover interaction on clock
+##Fixed
+-unable to switch theme back to back
