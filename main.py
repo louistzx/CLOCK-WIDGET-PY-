@@ -6,20 +6,72 @@ import ctypes
 from colorthief import ColorThief
 import webcolors
 from icrawler.builtin import GoogleImageCrawler
+import datetime as dt
+import requests
+from PIL import ImageTk, Image
+
+
 
 
 
 directory = os.getcwd()
 
+
+
+
+
 #window properties
 window = tkinter.Tk()
 window.title('OfTheEssence')
-window.geometry("700x150")
+window.geometry("700x200")
 themecolour = 'white'
 window.configure(background=themecolour)
 window.overrideredirect(True)
 
 
+
+def weather():
+    CITY = "Singapore"
+    APIKEY = open('key.api').read()
+    url = "http://api.openweathermap.org/data/2.5/weather?appid=" + APIKEY + "&q=" + CITY
+    response = requests.get(url).json()
+    print(response)
+
+    kelvin = response['main']['temp']
+    temp = kelvin - 273.15
+    humidity = response['main']['humidity']
+    description = response['weather'][0]['description']
+    sunrise_time = dt.datetime.utcfromtimestamp(response['sys']['sunrise'] + response['timezone'])
+    sunset_time = dt.datetime.utcfromtimestamp(response['sys']['sunset'] + response['timezone'])
+
+    Templabel.config(text=(str(round(temp, 2)) + "°C"))
+    description_label.config(text=description)
+    humiditylabel.config(text="humidity: " + str(humidity) + "%")
+    Templabel.after(3600000, weather)
+    description_label.after(3600000, weather)
+    humiditylabel.after(3600000, weather)
+
+    def weathericons(): #IDK HOW TO GET IT TO WORK BRUHHHHH
+        icon_used = response['weather'][0]['icon']
+        iconpath = str(directory) + "\icons\\" + icon_used + ".png"
+        print(iconpath)
+        image = PhotoImage(file=iconpath)
+        Label(window, image=image).pack()
+
+
+
+
+
+description_label = tkinter.Label(window, text="-", font="Helvetica 10", bg=themecolour)
+Templabel = tkinter.Label(window, text="0°C", font="Helvetica 10", bg=themecolour)
+humiditylabel = tkinter.Label(window, text="0°C", font="Helvetica 10", bg=themecolour)
+Templabel.pack()
+description_label.pack()
+humiditylabel.pack()
+Templabel.place(x=30, y=10)
+description_label.place(x=300, y=10)
+humiditylabel.place(x=600, y=10)
+weather()
 
 
 def digitalclock():
@@ -31,10 +83,11 @@ def digitalclock():
     timelabel.config(text=compiledtime)
     timelabel.after(1000, digitalclock)
 
-Font = "Helvetica 72 bold"
+Font = "Impact 72"
 timelabel = tkinter.Label(window, text="00:00:00", font=Font)
 timelabel.config(bg=themecolour)
 timelabel.pack()
+timelabel.place(x=100, y=50)
 digitalclock()
 
 
@@ -50,9 +103,12 @@ def searchbg(*args):
     def detectcolour():
         dominant_color = ColorThief('000001.jpg').get_color(quality=1)
         themecolour = webcolors.rgb_to_hex(dominant_color)
+        print(str(themecolour))
         timelabel.config(bg=themecolour)
         window.configure(background=themecolour)
-
+        Templabel.config(bg=themecolour)
+        description_label.config(bg=themecolour)
+        humiditylabel.config(bg=themecolour)
 
 
     def setbg():
@@ -80,10 +136,12 @@ def searchbg(*args):
     searchbutton.pack()
 
 def button_hover(*args):
-    timelabel.config(font=('Helvetica bold', 80))
+    timelabel.config(font=('Impact', 80))
+    timelabel.place(x=80, y=40)
 
 def button_hover_leave(*args):
-    timelabel.config(font=('Helvetica bold', 72))
+    timelabel.config(font=('Impact', 72))
+    timelabel.place(x=100, y=50)
 
 
 
