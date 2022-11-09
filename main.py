@@ -23,7 +23,7 @@ directory = os.getcwd()
 #window properties
 window = tkinter.Tk()
 window.title('OfTheEssence')
-window.geometry("700x200")
+window.geometry("700x250")
 themecolour = 'white'
 window.configure(background=themecolour)
 window.overrideredirect(True)
@@ -51,20 +51,26 @@ def weather():
     description_label.after(3600000, weather)
     humiditylabel.after(3600000, weather)
 
-    def weathericons(): #IDK HOW TO GET IT TO WORK BRUHHHHH
+    def weathericons():
         icon_used = response['weather'][0]['icon']
         iconpath = str(directory) + "\icons\\" + icon_used + ".png"
         print(iconpath)
-        image = PhotoImage(file=iconpath)
-        Label(window, image=image).pack()
+        Image1 = Image.open(iconpath)
+        Image2 = Image1.resize((70,70))
+        weatherimage = ImageTk.PhotoImage(Image2)
+        iconlabel.configure(bg=themecolour, image=weatherimage)
+        iconlabel.image = weatherimage
+        iconlabel.pack()
+        iconlabel.place(x=290, y=35)
+    weathericons()
 
 
 
 
-
-description_label = tkinter.Label(window, text="-", font="Helvetica 10", bg=themecolour)
-Templabel = tkinter.Label(window, text="0°C", font="Helvetica 10", bg=themecolour)
-humiditylabel = tkinter.Label(window, text="0°C", font="Helvetica 10", bg=themecolour)
+iconlabel = tkinter.Label(window, text="-", font="Helvetica 10 bold", bg=themecolour)
+description_label = tkinter.Label(window, text="-", font="Helvetica 10 bold", bg=themecolour)
+Templabel = tkinter.Label(window, text="0°C", font="Helvetica 10 bold", bg=themecolour)
+humiditylabel = tkinter.Label(window, text="0°C", font="Helvetica 10 bold", bg=themecolour)
 Templabel.pack()
 description_label.pack()
 humiditylabel.pack()
@@ -87,7 +93,7 @@ Font = "Impact 72"
 timelabel = tkinter.Label(window, text="00:00:00", font=Font)
 timelabel.config(bg=themecolour)
 timelabel.pack()
-timelabel.place(x=100, y=50)
+timelabel.place(x=100, y=100)
 digitalclock()
 
 
@@ -100,8 +106,12 @@ def searchbg(*args):
     new_window.geometry("250x100")
     new_window.title('Theme')
 
+
     def detectcolour():
-        dominant_color = ColorThief('000001.jpg').get_color(quality=1)
+        if os.path.exists("000001.jpg"):
+            dominant_color = ColorThief('000001.jpg').get_color(quality=1)
+        else:
+            dominant_color = ColorThief('000001.png').get_color(quality=1)
         themecolour = webcolors.rgb_to_hex(dominant_color)
         print(str(themecolour))
         timelabel.config(bg=themecolour)
@@ -109,6 +119,8 @@ def searchbg(*args):
         Templabel.config(bg=themecolour)
         description_label.config(bg=themecolour)
         humiditylabel.config(bg=themecolour)
+        iconlabel.config(bg=themecolour)
+
 
 
     def setbg():
@@ -116,6 +128,12 @@ def searchbg(*args):
 
         if os.path.exists("000001.jpg"):
             os.remove("000001.jpg")
+            print("jpg removed")
+        else:
+            print("The file does not exist")
+        if os.path.exists("000001.png"):
+            os.remove("000001.png")
+            print("png removed")
         else:
             print("The file does not exist")
 
@@ -123,10 +141,13 @@ def searchbg(*args):
         google_Crawler.crawl(keyword=url, max_num=1)
 
         SPI_SETDESKWALLPAPER = 20
-        ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, directory + '/000001.jpg', 0)
+
+        if os.path.exists("000001.jpg"):
+            ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, directory + '/000001.jpg', 0)
+        else:
+            ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, directory + '/000001.png', 0)
 
         detectcolour()
-        new_window.destroy()
 
 
 
@@ -137,11 +158,11 @@ def searchbg(*args):
 
 def button_hover(*args):
     timelabel.config(font=('Impact', 80))
-    timelabel.place(x=80, y=40)
+    timelabel.place(x=80, y=90)
 
 def button_hover_leave(*args):
     timelabel.config(font=('Impact', 72))
-    timelabel.place(x=100, y=50)
+    timelabel.place(x=100, y=100)
 
 
 

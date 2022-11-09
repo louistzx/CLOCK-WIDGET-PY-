@@ -12,7 +12,17 @@ update 1.2
 ##ADDED
 -keyword image search no need for image link
 
+
 update 1.3
 ##ADDED
 -weather using OPENWEATHER API
 -Better positioning of labels
+
+
+update 1.4
+##ADDED
+-weather icon added
+##FIXED
+-now supports .png and .jpeg images
+
+

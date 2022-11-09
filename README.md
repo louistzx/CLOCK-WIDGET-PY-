@@ -1,2 +1,3 @@
 # desktop-widget
-clock widget that can change desktop background on search
+Clock widget on click allows user to search up a keyword, setting the background and theme of widget to said keyword.
+Requires internet connection
