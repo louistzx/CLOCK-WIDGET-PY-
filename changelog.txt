@@ -16,7 +16,7 @@ update 1.2
 update 1.3
 ##ADDED
 -weather using OPENWEATHER API
--Better positioning of labels
+-better positioning of labels
 
 
 update 1.4
@@ -24,5 +24,11 @@ update 1.4
 -weather icon added
 ##FIXED
 -now supports .png and .jpeg images
+
+update 1.5
+##ADDED
+-timer and alarm function
+-animation for timer and alarm
+
 
 
