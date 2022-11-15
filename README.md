@@ -1,3 +1,2 @@
 # desktop-widget
-Clock widget on click allows user to search up a keyword, setting the background and theme of widget to said keyword.
-Requires internet connection
+Desktop clock widget with alarm and timer capabilities together with a uniuqe theme feature that changes desktop background and widget background based off a search
