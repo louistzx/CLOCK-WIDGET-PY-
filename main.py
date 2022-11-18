@@ -11,6 +11,7 @@ from icrawler.builtin import GoogleImageCrawler
 import datetime as dt
 import requests
 from PIL import ImageTk, Image
+from colourlist import dark_colours
 
 
 
@@ -18,22 +19,27 @@ from PIL import ImageTk, Image
 
 directory = os.getcwd()
 
+#Reading settings file
+global clockformat
+file = open('settings.set', 'r')
+content = file.readlines()
+CITY = content[5]
+print("CITY:" + content[5])
+clockformat = content[3].strip()
+print("Clock format: " + clockformat)
+themecolour = content[1].strip()
 
 
-
-
-#Window properties
+#Main window properties
 window = tkinter.Tk()
 window.title('OfTheEssence')
 window.geometry("550x250")
-themecolour = 'white'
 window.configure(background=themecolour)
 window.overrideredirect(True)
 
 
 #Getting weather forecast from OPENWEATHERMAP api
 def weather():
-    CITY = "Singapore"
     APIKEY = open('key.api').read()
     url = "http://api.openweathermap.org/data/2.5/weather?appid=" + APIKEY + "&q=" + CITY
     response = requests.get(url).json()
@@ -88,11 +94,19 @@ weather()
 #For clock
 def digitalclock():
     hrs = time.strftime("%I")
+    formathrs = int(hrs) + 12
     mins = time.strftime("%M")
     secs = time.strftime("%S")
     daynight = time.strftime("%p")
     global compiledtime
-    compiledtime = hrs + ":" + mins + ":" + secs + ":" + daynight
+    if clockformat == "12hr":
+        compiledtime = hrs + ":" + mins + ":" + secs + ":" + daynight
+    elif clockformat == "24hr":
+        if daynight == "PM":
+            compiledtime = formathrs + ":" + mins + ":" + secs
+        if daynight == "AM":
+            compiledtime = hrs + ":" + mins + ":" + secs
+
     timelabel.config(text=compiledtime)
     timelabel.after(1000, digitalclock)
 
@@ -112,6 +126,10 @@ def searchbg(*args):
     new_window = Toplevel(window)
     new_window.geometry("250x100")
     new_window.title('Theme')
+    new_window.config(bg=themecolour)
+    searchico = Image.open(directory+'/icons/search.png')
+    searchphoto = ImageTk.PhotoImage(searchico)
+    new_window.wm_iconphoto(False, searchphoto)
 
 
     def detectcolour():
@@ -119,9 +137,26 @@ def searchbg(*args):
             dominant_color = ColorThief('000001.jpg').get_color(quality=1)
         else:
             dominant_color = ColorThief('000001.png').get_color(quality=1)
+
         global themecolour
         themecolour = webcolors.rgb_to_hex(dominant_color)
         print(str(themecolour))
+        content[1] = themecolour + "\n"
+        writesavethemecolour = open('settings.set', 'w')
+        writesavethemecolour.writelines(content)
+
+
+        if themecolour == "#000000" or themecolour == "#36454F" or themecolour == "#023020" or themecolour == "#301934" or themecolour == "#343434" or themecolour == "#1B1212" or themecolour == "#060606" or themecolour == "#28282B" or themecolour == "#353935" or themecolour == "#11141a" or themecolour == "#0a0c10":
+            timelabel.config(fg="white")
+            Templabel.config(fg="white")
+            description_label.config(fg="white")
+            humiditylabel.config(fg="white")
+        else:
+            timelabel.config(fg="black")
+            Templabel.config(fg="black")
+            description_label.config(fg="black")
+            humiditylabel.config(fg="black")
+
         timelabel.config(bg=themecolour)
         window.configure(background=themecolour)
         Templabel.config(bg=themecolour)
@@ -130,6 +165,8 @@ def searchbg(*args):
         iconlabel.config(bg=themecolour)
         Timerbutton.config(bg=themecolour)
         Alarmbutton.config(bg=themecolour)
+        Settingsbutton.config(bg=themecolour)
+        new_window.config(bg=themecolour)
 
 
 
@@ -244,7 +281,7 @@ def Timerwindow(*args):
 
         Timerlabel.config(text=timer_hour_string + ":" + timer_minute_string + ":" + timer_second_string)
         global update
-        update = Timerlabel.after(1000, start_timer)
+        update = Timerlabel.after(600, start_timer)
 
     def reset_timer():
         global timerrunning, hours, minutes, seconds
@@ -330,11 +367,15 @@ def Alarmwindow(*args):
     Seclabel = tkinter.Label(Alarmwindow, text=":00", font=Font, bg=themecolour)
     Seclabel.pack()
     Seclabel.place(relx=0.6, rely=0.5, anchor='center')
-    AMPMlabel = tkinter.Label(Alarmwindow, text="AM", font=Font, bg=themecolour)
-    AMPMlabel.pack()
-    AMPMlabel.place(relx=0.89, rely=0.5, anchor='center')
 
-
+    if clockformat == "12hr":
+        AMPMlabel = tkinter.Label(Alarmwindow, text="AM", font=Font, bg=themecolour)
+        AMPMlabel.pack()
+        AMPMlabel.place(relx=0.89, rely=0.5, anchor='center')
+    else:
+        Hourlabel.place(relx=0.25, rely=0.5, anchor='center')
+        Minlabel.place(relx=0.5, rely=0.5, anchor='center')
+        Seclabel.place(relx=0.75, rely=0.5, anchor='center')
 
 
     def upchangealarm(*args):
@@ -346,9 +387,14 @@ def Alarmwindow(*args):
                 Hourlabel.config(text="0"+str(alarmhour))
             else:
                 Hourlabel.config(text=alarmhour)
-            if alarmhour == 24:
-                alarmhour = 0
-                Hourlabel.config(text="00")
+            if clockformat == "24hr":
+                if alarmhour == 25:
+                    alarmhour = 0
+                    Hourlabel.config(text="00")
+            elif clockformat == "12hr":
+                if alarmhour == 13:
+                    alarmhour = 0
+                    Hourlabel.config(text="00")
 
 
 
@@ -435,8 +481,11 @@ def Alarmwindow(*args):
         else:
             alarmsecondstring = ":"+f'{alarmsecond}'
         global alarmset
-        alarmset = f'{alarmhourstring}' + f'{alarmminutestring}' + f'{alarmsecondstring}' + ":" +str(alarmdaynight)
-        if alarmset == "00:00:00:AM" or alarmset == "00:00:00:PM" or alarmhourstring == "00":
+        if clockformat == "12hr":
+            alarmset = f'{alarmhourstring}' + f'{alarmminutestring}' + f'{alarmsecondstring}' + ":" +str(alarmdaynight)
+        elif clockformat == "24hr":
+            alarmset = f'{alarmhourstring}' + f'{alarmminutestring}' + f'{alarmsecondstring}'
+        if alarmset == "00:00:00:AM" or alarmset == "00:00:00:PM" or alarmhourstring == "00" and clockformat == "12hr":
             tkinter.messagebox.showerror(title="Error", message="Please select a time")
         else:
             tkinter.messagebox.showinfo(title="Alarm", message="Alarm set for " + alarmset)
@@ -448,7 +497,8 @@ def Alarmwindow(*args):
         print(alarmset, compiledtime)
         if alarmset == compiledtime:
             tkinter.messagebox.showinfo(title="Alarm", message="It is currently "+alarmset)
-        th()
+        else:
+            th()
 
     upbutton = Button(Alarmwindow, text="↑", padx=20, pady=10, command=upchangealarm)
     downbutton = Button(Alarmwindow, text="↓", padx=20, pady=10, command=downchangealarm)
@@ -516,7 +566,10 @@ def Alarmwindow(*args):
     Hourlabel.bind("<Button-1>", hourchangealarm)
     Minlabel.bind("<Button-1>", minchangealarm)
     Seclabel.bind("<Button-1>", secchangealarm)
-    AMPMlabel.bind("<Button-1>", AMchangealarm)
+    if clockformat == "12hr":
+        AMPMlabel.bind("<Button-1>", AMchangealarm)
+    else:
+        pass
     Backbutton2 = tkinter.Label(Alarmwindow, bg=themecolour, image=Backimage)
     Backbutton2.image = Backimage
     Backbutton2.pack()
@@ -530,6 +583,107 @@ def Alarmwindow(*args):
 
 
 Alarmbutton.bind("<Button-1>", Alarmwindow)
+
+
+
+#Settings
+OpenImageSettings = Image.open(directory +"/icons/settings.png")
+ResizedImageSettings = OpenImageSettings.resize((30, 30))
+Settingsimage = ImageTk.PhotoImage(ResizedImageSettings)
+Settingsbutton = tkinter.Label(bg=themecolour, image=Settingsimage)
+Settingsbutton.image = Settingsimage
+Settingsbutton.pack()
+Settingsbutton.place(relx=1, rely=1, anchor='se')
+
+def Settingswindow(*args):
+    global clockformat
+    settings_window = Toplevel(window)
+    settings_window.geometry("250x200")
+    settings_window.title('Settings')
+    settings_window.config(bg=themecolour)
+    settingsphoto = ImageTk.PhotoImage(OpenImageSettings)
+    settings_window.wm_iconphoto(False, settingsphoto)
+
+
+
+
+    #Labels
+    formatsetting = tkinter.Label(settings_window, text="Clock format:", font="Helvetica 10", bg=themecolour)
+    formatsetting.pack()
+    formatsetting.place(relx=0.05, rely=0.15)
+    quitsetting = tkinter.Label(settings_window, text="Quit Widget", font="Helvetica 10", bg=themecolour)
+    quitsetting.pack()
+    quitsetting.place(relx=0.05, rely=0.70)
+    citysetting = tkinter.Label(settings_window, text=("Change weather location: " + CITY), font="Helvetica 10", bg=themecolour)
+    citysetting.pack()
+    citysetting.place(relx=0.05, rely=0.35)
+    formatsettingoption1 = tkinter.Label(settings_window, text="24Hr /", font="Helvetica 10", bg=themecolour)
+    formatsettingoption1.pack()
+    formatsettingoption1.place(relx=0.65, rely=0.15)
+    formatsettingoption2 = tkinter.Label(settings_window, text=" 12Hr", font="Helvetica 10", bg=themecolour)
+    formatsettingoption2.pack()
+    formatsettingoption2.place(relx=0.81, rely=0.15)
+    if clockformat == "12hr":
+        formatsettingoption2.config(font="Helvetica 10 bold")
+    else:
+        formatsettingoption1.config(font="Helvetica 10 bold")
+
+
+    def changeto24format(*args):
+        global clockformat
+        formatsettingoption1.config(font="Helvetica 10 bold")
+        formatsettingoption2.config(font="Helvetica 10")
+        clockformat = "24hr"
+        content[3] = "24hr\n"
+        writesaveformat1 = open('settings.set', 'w')
+        writesaveformat1.writelines(content)
+
+
+    def changeto12format(*args):
+        global clockformat
+        formatsettingoption2.config(font="Helvetica 10 bold")
+        formatsettingoption1.config(font="Helvetica 10")
+        clockformat = "12hr"
+        content[3] = "12hr\n"
+        writesaveformat2 = open('settings.set', 'w')
+        writesaveformat2.writelines(content)
+
+    def changecity(*args):
+        citytextbox.pack()
+        citytextbox.place(relx=0.06, rely=0.47)
+        savecitytextbox.pack()
+        savecitytextbox.place(relx=0.6, rely=0.45)
+        citysetting.config(text="Change weather location:")
+
+    def savecity(*args):
+        global CITY
+        newcity = citytextbox.get()
+        if newcity == "":
+            tkinter.messagebox.showerror(title="Error", message="Please input a valid city")
+        else:
+            print(newcity)
+            content[5] = newcity
+            writesavecityfile = open('settings.set', 'w')
+            writesavecityfile.writelines(content)
+            CITY = newcity
+            weather()
+
+    def quitwidget(*args):
+         quit()
+
+    citysetting.bind("<Button-1>", changecity)
+    quitsetting.bind("<Button-1>", quitwidget)
+    formatsettingoption1.bind("<Button-1>", changeto24format)
+    formatsettingoption2.bind("<Button-1>", changeto12format)
+    citytextbox = Entry(settings_window,width=20)
+    savecitytextbox = Button(settings_window, text="Save", padx=8, pady=2, command=savecity)
+
+
+
+
+
+
+Settingsbutton.bind("<Button-1>", Settingswindow)
 
 #Animate alarm icon
 def alarmbutton_hover(*args):
@@ -563,6 +717,26 @@ def timerbutton_hover_leave(*args):
 
 Timerbutton.bind("<Enter>", timerbutton_hover)
 Timerbutton.bind("<Leave>", timerbutton_hover_leave)
+
+
+#Animate settings icon
+def settingsbutton_hover(*args):
+    ResizedImageSettings2 = OpenImageSettings.resize((40, 40))
+    Settingsimage2 = ImageTk.PhotoImage(ResizedImageSettings2)
+    Settingsbutton.config(bg=themecolour, image=Settingsimage2)
+    Settingsbutton.image = Settingsimage2
+
+def settingsbutton_hover_leave(*args):
+    Settingsbutton.config(bg=themecolour, image=Settingsimage)
+    Settingsbutton.image = Settingsimage
+
+
+Settingsbutton.bind("<Enter>", settingsbutton_hover)
+Settingsbutton.bind("<Leave>", settingsbutton_hover_leave)
+
+
+
+
 
 
 
