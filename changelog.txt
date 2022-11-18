@@ -30,5 +30,12 @@ update 1.5
 -timer and alarm function
 -animation for timer and alarm
 
+update 1.6
+##ADDED
+-save settings and load presaved settings
+-settings include : 12hr/24hr clock format , location for weather and exit option
+-added 12hr format for alarm clock
+-detect certain colours and inverts text font colour for better visibility
+
 
 
