@@ -1,6 +1,8 @@
 # desktop-widget
 Desktop clock and weather widget with alarm and timer capabilities together with a uniuqe theme feature that changes desktop and widget background based off a search
 
+Created this project to learn more about python programming and APIS. Project has been retired to learn more about javascript.
+
 **Changing dekstop theme upon search:**
 ![normal](https://user-images.githubusercontent.com/116427976/202636870-49ea8dad-3cf5-46e6-b5ef-3dd6d0b94741.png)
 
