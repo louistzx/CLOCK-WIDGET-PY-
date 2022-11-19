@@ -11,8 +11,6 @@ from icrawler.builtin import GoogleImageCrawler
 import datetime as dt
 import requests
 from PIL import ImageTk, Image
-from colourlist import dark_colours
-
 
 
 
@@ -36,6 +34,11 @@ window.title('OfTheEssence')
 window.geometry("550x250")
 window.configure(background=themecolour)
 window.overrideredirect(True)
+
+
+
+
+
 
 
 #Getting weather forecast from OPENWEATHERMAP api
@@ -102,10 +105,15 @@ def digitalclock():
     if clockformat == "12hr":
         compiledtime = hrs + ":" + mins + ":" + secs + ":" + daynight
     elif clockformat == "24hr":
-        if daynight == "PM":
-            compiledtime = formathrs + ":" + mins + ":" + secs
-        if daynight == "AM":
+        if daynight == "PM" and hrs != "12":
+            compiledtime = str(formathrs) + ":" + mins + ":" + secs
+        if daynight == "AM" and hrs != "12":
             compiledtime = hrs + ":" + mins + ":" + secs
+        if daynight == "PM" and hrs == "12":
+            compiledtime = hrs + ":" + mins + ":" + secs
+        if daynight == "AM" and hrs == "12":
+            compiledtime = "00" + ":" + mins + ":" + secs
+
 
     timelabel.config(text=compiledtime)
     timelabel.after(1000, digitalclock)
@@ -141,21 +149,13 @@ def searchbg(*args):
         global themecolour
         themecolour = webcolors.rgb_to_hex(dominant_color)
         print(str(themecolour))
+        if themecolour == "#000000" or themecolour == "#36454F" or themecolour == "#023020" or themecolour == "#301934" or themecolour == "#05040b" or themecolour == "#1B1212" or themecolour == "#060606" or themecolour == "#28282B" or themecolour == "#353935" or themecolour == "#11141a" or themecolour == "#0a0c10":
+            themecolour = "#282828"
         content[1] = themecolour + "\n"
         writesavethemecolour = open('settings.set', 'w')
         writesavethemecolour.writelines(content)
 
 
-        if themecolour == "#000000" or themecolour == "#36454F" or themecolour == "#023020" or themecolour == "#301934" or themecolour == "#343434" or themecolour == "#1B1212" or themecolour == "#060606" or themecolour == "#28282B" or themecolour == "#353935" or themecolour == "#11141a" or themecolour == "#0a0c10":
-            timelabel.config(fg="white")
-            Templabel.config(fg="white")
-            description_label.config(fg="white")
-            humiditylabel.config(fg="white")
-        else:
-            timelabel.config(fg="black")
-            Templabel.config(fg="black")
-            description_label.config(fg="black")
-            humiditylabel.config(fg="black")
 
         timelabel.config(bg=themecolour)
         window.configure(background=themecolour)
@@ -167,8 +167,6 @@ def searchbg(*args):
         Alarmbutton.config(bg=themecolour)
         Settingsbutton.config(bg=themecolour)
         new_window.config(bg=themecolour)
-
-
 
     def setbg():
         url = (textbox.get() + " HD background")
@@ -608,31 +606,31 @@ def Settingswindow(*args):
 
 
     #Labels
-    formatsetting = tkinter.Label(settings_window, text="Clock format:", font="Helvetica 10", bg=themecolour)
+    formatsetting = tkinter.Label(settings_window, text="Clock format:", font="Helvetica 12", bg=themecolour)
     formatsetting.pack()
     formatsetting.place(relx=0.05, rely=0.15)
-    quitsetting = tkinter.Label(settings_window, text="Quit Widget", font="Helvetica 10", bg=themecolour)
+    quitsetting = tkinter.Label(settings_window, text="Quit Widget", font="Helvetica 12", bg=themecolour)
     quitsetting.pack()
     quitsetting.place(relx=0.05, rely=0.70)
-    citysetting = tkinter.Label(settings_window, text=("Change weather location: " + CITY), font="Helvetica 10", bg=themecolour)
+    citysetting = tkinter.Label(settings_window, text=("Change weather location: " + CITY), font="Helvetica 12", bg=themecolour)
     citysetting.pack()
     citysetting.place(relx=0.05, rely=0.35)
-    formatsettingoption1 = tkinter.Label(settings_window, text="24Hr /", font="Helvetica 10", bg=themecolour)
+    formatsettingoption1 = tkinter.Label(settings_window, text="24Hr /", font="Helvetica 12", bg=themecolour)
     formatsettingoption1.pack()
     formatsettingoption1.place(relx=0.65, rely=0.15)
-    formatsettingoption2 = tkinter.Label(settings_window, text=" 12Hr", font="Helvetica 10", bg=themecolour)
+    formatsettingoption2 = tkinter.Label(settings_window, text=" 12Hr", font="Helvetica 12", bg=themecolour)
     formatsettingoption2.pack()
     formatsettingoption2.place(relx=0.81, rely=0.15)
     if clockformat == "12hr":
-        formatsettingoption2.config(font="Helvetica 10 bold")
+        formatsettingoption2.config(font="Helvetica 12 bold")
     else:
-        formatsettingoption1.config(font="Helvetica 10 bold")
+        formatsettingoption1.config(font="Helvetica 12 bold")
 
 
     def changeto24format(*args):
         global clockformat
-        formatsettingoption1.config(font="Helvetica 10 bold")
-        formatsettingoption2.config(font="Helvetica 10")
+        formatsettingoption1.config(font="Helvetica 12 bold")
+        formatsettingoption2.config(font="Helvetica 12")
         clockformat = "24hr"
         content[3] = "24hr\n"
         writesaveformat1 = open('settings.set', 'w')
@@ -641,8 +639,8 @@ def Settingswindow(*args):
 
     def changeto12format(*args):
         global clockformat
-        formatsettingoption2.config(font="Helvetica 10 bold")
-        formatsettingoption1.config(font="Helvetica 10")
+        formatsettingoption2.config(font="Helvetica 12 bold")
+        formatsettingoption1.config(font="Helvetica 12")
         clockformat = "12hr"
         content[3] = "12hr\n"
         writesaveformat2 = open('settings.set', 'w')
@@ -733,8 +731,6 @@ def settingsbutton_hover_leave(*args):
 
 Settingsbutton.bind("<Enter>", settingsbutton_hover)
 Settingsbutton.bind("<Leave>", settingsbutton_hover_leave)
-
-
 
 
 

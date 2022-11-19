@@ -1,6 +1,6 @@
 themecolour:
-white
+#282828
 clockformat:
-12hr
+24hr
 weather city:
 Singapore
